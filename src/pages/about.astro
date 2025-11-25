@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/SimplePage.astro';
+import CertificationBadge from '../components/CertificationBadge.astro';
+import { certifications } from '../data/certifications';
+---
+
+<Layout
+	title="About Me"
+	description="About Your Name">
+	<center><p>I am Your Name — your tagline here.</center>
+	</p>
+	<p>Your professional background and what you do goes here. Describe your role, expertise, and what drives you.
+	</p>
+	Expand on your experience, philosophy, and what visitors can expect from your portfolio. Link to your credentials and social profiles as needed.
+	</p>
+<p>
+<center>
+<h1> Education</h1>
+	<p><h5> Your Degree, Expected Graduation Date, University Name
+	<p>
+			Previous Degree, Year, University Name
+			<p>
+	Any honors or memberships <a href="https://example.com" target="blank">--></a>
+
+	<div class="certification-badges">
+		{certifications.map((cert) => (
+			<CertificationBadge
+				name={cert.name}
+				issuer={cert.issuer}
+				credlyUrl={cert.credlyUrl}
+				dateIssued={cert.dateIssued}
+				expirationDate={cert.expirationDate}
+				inProgress={cert.inProgress}
+				badgeImageUrl={cert.badgeImageUrl}
+			/>
+		))}
+	</div>
+
+	<style>
+		.certification-badges {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			max-width: 900px;
+			margin: 2rem auto;
+			gap: 1.5rem;
+			justify-items: center;
+		}
+
+		@media (min-width: 1024px) {
+			.certification-badges {
+				grid-template-columns: repeat(3, 1fr);
+			}
+		}
+
+		@media (min-width: 768px) and (max-width: 1023px) {
+			.certification-badges {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 767px) {
+			.certification-badges {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+
+</Layout>

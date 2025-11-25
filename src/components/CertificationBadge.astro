@@ -1,0 +1,150 @@
+---
+interface Props {
+	name: string;
+	issuer: string;
+	credlyUrl: string;
+	dateIssued: string;
+	expirationDate?: string;
+	inProgress?: boolean;
+	badgeImageUrl?: string;
+}
+
+const { name, issuer, credlyUrl, dateIssued, expirationDate, inProgress = false, badgeImageUrl } = Astro.props;
+---
+
+<div class="cert-badge">
+	<a href={credlyUrl} target="_blank" rel="noopener noreferrer" class="cert-link">
+		{badgeImageUrl && (
+			<div class="cert-image">
+				<img src={badgeImageUrl} alt={`${name} badge`} />
+			</div>
+		)}
+		<div class="cert-info">
+			<h4 class="cert-name">{name}</h4>
+			<p class="cert-issuer">{issuer}</p>
+			<div class="cert-dates">
+				<div class="date-item">
+					<span class="date-label">Issued:</span>
+					<span class="date-value">{dateIssued}</span>
+				</div>
+				{inProgress ? (
+					<div class="date-item in-progress">
+						<span class="status-badge">In Progress</span>
+					</div>
+				) : expirationDate ? (
+					<div class="date-item">
+						<span class="date-label">Expires:</span>
+						<span class="date-value">{expirationDate}</span>
+					</div>
+				) : null}
+			</div>
+		</div>
+	</a>
+</div>
+
+<style>
+	.cert-badge {
+		background: #3d4a3b;
+		border: 2px solid #e2e8f0;
+		border-radius: 12px;
+		padding: 1.5rem;
+		transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+		max-width: 280px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	}
+
+	.cert-badge:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+		border-color: var(--box-border-hover, #cbd5e0);
+	}
+
+	.cert-link {
+		text-decoration: none;
+		color: inherit;
+		display: block;
+	}
+
+	.cert-image {
+		text-align: center;
+		margin-bottom: 1.25rem;
+		padding: 0.5rem;
+		background: #c8d0c8;
+		border-radius: 8px;
+	}
+
+	.cert-image img {
+		max-width: 140px;
+		height: auto;
+		display: block;
+		margin: 0 auto;
+	}
+
+	.cert-info {
+		text-align: center;
+	}
+
+	.cert-name {
+		font-size: 1.1rem;
+		font-weight: 600;
+		margin: 0 0 0.5rem 0;
+		color: #ffffff;
+	}
+
+	.cert-issuer {
+		font-size: 0.9rem;
+		color: #e2e8f0;
+		margin: 0 0 1rem 0;
+	}
+
+	.cert-dates {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		font-size: 0.85rem;
+	}
+
+	.date-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.25rem 0;
+	}
+
+	.date-item.in-progress {
+		justify-content: center;
+	}
+
+	.date-label {
+		font-weight: 500;
+		color: #cbd5e0;
+	}
+
+	.date-value {
+		color: #ffffff;
+	}
+
+	.status-badge {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+		padding: 0.4rem 0.8rem;
+		border-radius: 20px;
+		font-weight: 600;
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	:global(.dark) .cert-badge {
+		background: #0d1a0d;
+		border-color: #1a2e1a;
+	}
+
+	:global(.dark) .cert-badge:hover {
+		border-color: #2d4a2d;
+	}
+
+	:global(.dark) .cert-image {
+		background: #050a05;
+	}
+</style>

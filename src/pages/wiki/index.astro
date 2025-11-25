@@ -1,0 +1,142 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+const wikiPages = (await getCollection('wiki')).sort(
+	(a, b) => b.data.updatedDate.valueOf() - a.data.updatedDate.valueOf(),
+);
+
+// Group by category
+const pagesByCategory = wikiPages.reduce((acc, page) => {
+	const category = page.data.category;
+	if (!acc[category]) {
+		acc[category] = [];
+	}
+	acc[category].push(page);
+	return acc;
+}, {} as Record<string, typeof wikiPages>);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Wiki | ${SITE_TITLE}`} description="Technical documentation and knowledge base" />
+		<style>
+			main {
+				width: var(--container-medium);
+			}
+			.intro {
+				margin-bottom: var(--space-lg);
+			}
+			.category-section {
+				margin-bottom: var(--space-xl);
+			}
+			.category-title {
+				color: rgb(var(--accent));
+				border-bottom: 2px solid rgb(var(--accent));
+				padding-bottom: 0.5rem;
+				margin-bottom: 1rem;
+			}
+			ul {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			ul li {
+				margin-bottom: 1rem;
+				padding: 1rem;
+				background: rgb(var(--gray-light));
+				border-radius: 8px;
+				transition: 0.2s ease;
+			}
+			ul li:hover {
+				box-shadow: var(--box-shadow);
+			}
+			ul li a {
+				text-decoration: none;
+				display: block;
+			}
+			.title {
+				margin: 0 0 0.5rem 0;
+				color: rgb(var(--black));
+				line-height: 1.2;
+			}
+			.meta {
+				margin: var(--space-sm) 0;
+				color: rgb(var(--gray));
+				font-size: var(--font-size-sm);
+			}
+			.tags {
+				margin-top: 0.5rem;
+			}
+			.tag {
+				display: inline-block;
+				background: white;
+				color: rgb(var(--gray-dark));
+				padding: 0.2rem 0.5rem;
+				border-radius: 3px;
+				margin-right: 0.25rem;
+				font-size: 0.8rem;
+			}
+			ul li a:hover .title {
+				color: rgb(var(--accent));
+			}
+			/* Mobile: 320px - 767px */
+			@media (max-width: 767px) {
+				.category-section {
+					margin-bottom: var(--space-lg);
+				}
+				ul li {
+					padding: var(--space-sm);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section>
+				<div class="intro">
+					<h1>Wiki</h1>
+					<p>Technical documentation, guides, and knowledge base.</p>
+				</div>
+				{wikiPages.length === 0 ? (
+					<p>No wiki pages yet. Documentation coming soon!</p>
+				) : (
+					<>
+						{Object.entries(pagesByCategory).map(([category, pages]) => (
+							<div class="category-section">
+								<h2 class="category-title">{category}</h2>
+								<ul>
+									{pages.map((page) => (
+										<li>
+											<a href={`/wiki/${page.id}/`}>
+												<h3 class="title">{page.data.title}</h3>
+												<p>{page.data.description}</p>
+												<div class="meta">
+													Updated: <FormattedDate date={page.data.updatedDate} />
+												</div>
+												{page.data.tags && page.data.tags.length > 0 && (
+													<div class="tags">
+														{page.data.tags.map((tag) => (
+															<span class="tag">{tag}</span>
+														))}
+													</div>
+												)}
+											</a>
+										</li>
+									))}
+								</ul>
+							</div>
+						))}
+					</>
+				)}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>

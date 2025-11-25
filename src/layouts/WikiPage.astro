@@ -1,0 +1,112 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'wiki'>['data'];
+
+const { title, description, category, tags, updatedDate, heroImage } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			main {
+				width: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			.hero-image {
+				width: 100%;
+			}
+			.hero-image img {
+				display: block;
+				margin: 0 auto;
+				border-radius: 12px;
+				box-shadow: var(--box-shadow);
+			}
+			.prose {
+				width: var(--container-narrow);
+				margin: auto;
+				padding: var(--space-md);
+				color: rgb(var(--gray-dark));
+			}
+			.title-section {
+				margin-bottom: var(--space-lg);
+				padding: var(--space-md) 0;
+				border-bottom: 2px solid rgb(var(--gray-light));
+			}
+			.title-section h1 {
+				margin: 0 0 var(--space-sm) 0;
+			}
+			.meta {
+				margin: var(--space-md) 0;
+				font-size: var(--font-size-sm);
+				color: rgb(var(--gray));
+			}
+			.category-badge {
+				display: inline-block;
+				background: rgb(var(--accent));
+				color: white;
+				padding: 0.25rem 0.75rem;
+				border-radius: 4px;
+				margin-right: 1rem;
+				font-weight: 600;
+			}
+			.tags {
+				margin: 1rem 0;
+			}
+			.tag {
+				display: inline-block;
+				background: rgb(var(--gray-light));
+				color: rgb(var(--gray-dark));
+				padding: 0.3rem 0.6rem;
+				border-radius: 4px;
+				margin-right: 0.5rem;
+				margin-bottom: 0.5rem;
+				font-size: var(--font-size-sm);
+			}
+
+			/* Mobile: 320px - 767px */
+			@media (max-width: 767px) {
+				.prose {
+					padding: var(--space-sm);
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="hero-image">
+					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+				</div>
+				<div class="prose">
+					<div class="title-section">
+						<h1>{title}</h1>
+						<p>{description}</p>
+						<div class="meta">
+							<span class="category-badge">{category}</span>
+							Last updated: <FormattedDate date={updatedDate} />
+						</div>
+						{tags && tags.length > 0 && (
+							<div class="tags">
+								{tags.map((tag) => (
+									<span class="tag">{tag}</span>
+								))}
+							</div>
+						)}
+					</div>
+					<slot />
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>

@@ -1,0 +1,267 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			main {
+				width: 100%;
+				margin: 0;
+				padding: 0;
+			}
+
+			/* Page container with two-column grid on desktop */
+			.page-container {
+				max-width: var(--container-medium);
+				margin: 0 auto;
+				padding: var(--space-md) 1rem;
+				width: 100%;
+			}
+
+			.prose {
+				color: var(--text-primary);
+			}
+
+			/* Table of Contents */
+			.toc-wrapper {
+				margin-bottom: 2rem;
+			}
+
+			.toc-nav {
+				padding: 1.25rem;
+				background: var(--bg-primary);
+				border: 1px solid var(--border-color);
+				border-radius: 8px;
+			}
+
+			.toc-nav h4 {
+				margin: 0 0 1rem 0;
+				font-size: 0.875rem;
+				font-weight: 600;
+				color: rgb(var(--gray-dark));
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			.toc-nav ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+
+			.toc-nav li {
+				margin: 0;
+			}
+
+			.toc-nav a {
+				display: block;
+				padding: 0.5rem 0.75rem;
+				color: rgb(var(--gray));
+				text-decoration: none;
+				border-left: 2px solid transparent;
+				transition: all 0.2s ease;
+				font-size: 0.875rem;
+				line-height: 1.4;
+				/* Truncate long headings */
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				white-space: normal;
+			}
+
+			.toc-nav a:hover {
+				color: var(--accent);
+				border-left-color: var(--accent);
+				background: rgba(74, 103, 65, 0.05);
+			}
+
+			.toc-nav a.active {
+				color: var(--accent);
+				border-left-color: var(--accent);
+				font-weight: 600;
+				background: rgba(74, 103, 65, 0.1);
+			}
+
+			.toc-nav .toc-h3 {
+				padding-left: 1.5rem;
+				font-size: 0.8rem;
+			}
+
+			.title {
+				margin-bottom: 1em;
+				padding: 1em 0;
+				text-align: center;
+				line-height: 1;
+			}
+			.title h1 {
+				margin: 0 0 0.5em 0;
+			}
+			.date {
+				margin-bottom: 0.5em;
+				color: rgb(var(--gray));
+			}
+			.last-updated-on {
+				font-style: italic;
+			}
+
+			/* Desktop: Sticky sidebar with two-column grid */
+			@media (min-width: 1024px) {
+				.page-container {
+					display: grid;
+					grid-template-columns: 280px 1fr;
+					gap: 2.5rem;
+					align-items: start;
+					max-width: var(--container-extra-wide);
+				}
+
+				.toc-wrapper {
+					position: sticky;
+					top: 80px;
+					max-height: calc(100vh - 100px);
+					overflow-y: auto;
+					margin-bottom: 0;
+					align-self: start;
+				}
+
+				.toc-nav {
+					background: rgba(255, 255, 255, 0.95);
+				}
+			}
+
+			/* Mobile: 320px - 767px */
+			@media (max-width: 767px) {
+				.page-container {
+					padding: var(--space-sm);
+				}
+			}
+		</style>
+		<script>
+			// Build table of contents with collapse/expand and scroll spy
+			document.addEventListener('DOMContentLoaded', () => {
+				const prose = document.querySelector('.prose');
+				if (!prose) return;
+
+				// Find all h2 and h3 headings in the content
+				const headings = Array.from(prose.querySelectorAll('h2, h3')).filter(
+					(h) => !h.closest('.title')
+				);
+
+				if (headings.length === 0) return;
+
+				// Assign IDs to headings if they don't have them
+				headings.forEach((heading, index) => {
+					if (!heading.id) {
+						const text = heading.textContent?.trim() || '';
+						const id = text
+							.toLowerCase()
+							.replace(/[^a-z0-9]+/g, '-')
+							.replace(/^-|-$/g, '');
+						heading.id = id || `heading-${index}`;
+					}
+				});
+
+				// Build TOC HTML structure
+				const tocWrapper = document.createElement('div');
+				tocWrapper.className = 'toc-wrapper';
+				tocWrapper.innerHTML = `
+					<nav class="toc-nav" aria-label="Table of contents">
+						<h4>Table of Contents</h4>
+						<ul id="toc-list"></ul>
+					</nav>
+				`;
+
+				const tocList = tocWrapper.querySelector('#toc-list');
+				headings.forEach((heading) => {
+					const li = document.createElement('li');
+					const a = document.createElement('a');
+					const headingText = heading.textContent || '';
+					a.href = `#${heading.id}`;
+					a.textContent = headingText;
+					a.title = headingText; // Full text on hover for truncated items
+					a.className = heading.tagName === 'H3' ? 'toc-h3' : '';
+					li.appendChild(a);
+					tocList?.appendChild(li);
+				});
+
+				// Insert TOC based on screen size
+				const pageContainer = document.querySelector('.page-container');
+				const titleSection = document.querySelector('.title');
+				const isMobile = window.innerWidth < 1024;
+
+				if (isMobile && titleSection) {
+					// Mobile: Insert after title section (between metadata and content)
+					titleSection.parentElement?.insertBefore(tocWrapper, titleSection.nextSibling);
+				} else if (pageContainer) {
+					// Desktop: Insert at beginning of page-container for grid layout
+					pageContainer.insertBefore(tocWrapper, pageContainer.firstChild);
+				}
+
+				// Scroll spy functionality
+				const tocNav = tocWrapper.querySelector('.toc-nav');
+				const observerOptions = {
+					rootMargin: '-100px 0px -66%',
+					threshold: 0
+				};
+
+				const observerCallback = (entries: IntersectionObserverEntry[]) => {
+					entries.forEach((entry) => {
+						const id = entry.target.getAttribute('id');
+						const link = tocNav?.querySelector(`a[href="#${id}"]`);
+						if (entry.isIntersecting) {
+							// Remove active from all links
+							tocNav?.querySelectorAll('a').forEach((a) => a.classList.remove('active'));
+							// Add active to current link
+							link?.classList.add('active');
+						}
+					});
+				};
+
+				const observer = new IntersectionObserver(observerCallback, observerOptions);
+				headings.forEach((heading) => observer.observe(heading));
+			});
+		</script>
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="page-container">
+					<div class="prose">
+						<div class="title">
+							{pubDate && (
+								<div class="date">
+									<FormattedDate date={pubDate} />
+									{
+										updatedDate && (
+											<div class="last-updated-on">
+												Last updated on <FormattedDate date={updatedDate} />
+											</div>
+										)
+									}
+								</div>
+							)}
+							<h1>{title}</h1>
+							<hr />
+						</div>
+						<slot />
+					</div>
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>

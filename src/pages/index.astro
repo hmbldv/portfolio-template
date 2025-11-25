@@ -1,0 +1,68 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				width: var(--container-extra-wide);
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+			}
+			.contact-button {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				margin-top: 2rem;
+				padding: 0.75rem 1.5rem;
+				background: var(--accent);
+				color: white;
+				text-decoration: none;
+				border-radius: 8px;
+				font-weight: 600;
+				transition: all 0.3s ease;
+				box-shadow: 0 2px 8px rgba(var(--accent-dark), 0.2);
+			}
+			.contact-button:hover {
+				background: var(--accent-dark);
+				transform: translateY(-2px);
+				box-shadow: 0 4px 12px rgba(var(--accent-dark), 0.3);
+			}
+			.contact-button svg {
+				width: 20px;
+				height: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Your Name</h1>
+				<h3><b>Your Title</h3>
+				<br>
+				<h4>Your · Specializations · Here</b></h4>
+			<p>
+			Your professional introduction goes here.
+			<br>
+			Describe what visitors will find on your portfolio site.
+			</p>
+			<a href="mailto:your-email@example.com" class="contact-button">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+					<polyline points="22,6 12,13 2,6"></polyline>
+				</svg>
+				Contact Me
+			</a>
+			</main>
+		<Footer />
+	</body>
+</html>

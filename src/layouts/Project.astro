@@ -1,0 +1,393 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'projects'>['data'];
+
+const {
+	title,
+	description,
+	category,
+	status,
+	version,
+	startedDate,
+	launchedDate,
+	updatedDate,
+	heroImage,
+	techStack,
+	repoUrl,
+	liveUrl
+} = Astro.props;
+
+const categoryLabels = {
+	'aws-security': 'AWS Security',
+	'aws-infra': 'AWS Infrastructure',
+	'homelab': 'Homelab',
+	'ai-tools': 'AI & Automation',
+	'local-dev': 'Local Development',
+	'aws-ai': 'AWS AI/ML',
+	'frontend-development': 'Frontend Development'
+};
+---
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			main {
+				width: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			.hero-image {
+				width: 100%;
+			}
+			.hero-image img {
+				display: block;
+				margin: 0 auto;
+				border-radius: 12px;
+				box-shadow: var(--box-shadow);
+			}
+
+			/* Page container with two-column grid on desktop */
+			.page-container {
+				max-width: var(--container-medium);
+				margin: 0 auto;
+				padding: var(--space-md) 1rem;
+				width: 100%;
+			}
+
+			.prose {
+				color: rgb(var(--gray-dark));
+			}
+
+			/* Table of Contents */
+			.toc-wrapper {
+				margin-bottom: 2rem;
+			}
+
+			.toc-nav {
+				padding: 1.25rem;
+				background: var(--bg-primary);
+				border: 1px solid var(--border-color);
+				border-radius: 8px;
+			}
+
+			.toc-nav h4 {
+				margin: 0 0 1rem 0;
+				font-size: 0.875rem;
+				font-weight: 600;
+				color: rgb(var(--gray-dark));
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			.toc-nav ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+
+			.toc-nav li {
+				margin: 0;
+			}
+
+			.toc-nav a {
+				display: block;
+				padding: 0.5rem 0.75rem;
+				color: rgb(var(--gray));
+				text-decoration: none;
+				border-left: 2px solid transparent;
+				transition: all 0.2s ease;
+				font-size: 0.875rem;
+				line-height: 1.4;
+				/* Truncate long headings */
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				white-space: normal;
+			}
+
+			.toc-nav a:hover {
+				color: var(--accent);
+				border-left-color: var(--accent);
+				background: rgba(74, 103, 65, 0.05);
+			}
+
+			.toc-nav a.active {
+				color: var(--accent);
+				border-left-color: var(--accent);
+				font-weight: 600;
+				background: rgba(74, 103, 65, 0.1);
+			}
+
+			.toc-nav .toc-h3 {
+				padding-left: 1.5rem;
+				font-size: 0.8rem;
+			}
+			.title-section {
+				margin-bottom: var(--space-sm);
+				padding: var(--space-md) 0;
+				border-bottom: 1px solid rgb(var(--gray));
+			}
+			.title-section h1 {
+				margin: 0 0 var(--space-sm) 0;
+			}
+			.meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: var(--space-md);
+				margin: var(--space-md) 0;
+				font-size: var(--font-size-sm);
+				color: rgb(var(--gray));
+			}
+			.meta-item {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+			.category {
+				background: rgba(74, 103, 65, 0.65);
+				color: white;
+				padding: 0.25rem 0.75rem;
+				border-radius: 4px;
+				font-weight: 600;
+				text-transform: uppercase;
+				font-size: 0.75rem;
+				letter-spacing: 0.5px;
+			}
+			.status {
+				font-weight: 600;
+				text-transform: uppercase;
+			}
+			.status.launched {
+				color: green;
+			}
+			.status.in-development {
+				color: orange;
+			}
+			.tech-stack {
+				margin: 0.5rem 0;
+			}
+			.tech-stack h3 {
+				font-size: 1rem;
+				margin-bottom: 0.5rem;
+				color: rgb(var(--gray-dark));
+			}
+			.tech-tag {
+				display: inline-block;
+				background: rgb(var(--gray-light));
+				padding: 0.3rem 0.6rem;
+				border-radius: 4px;
+				margin-right: 0.5rem;
+				margin-bottom: 0.5rem;
+				font-size: 0.9rem;
+			}
+			.live-link,
+			.repo-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.5rem 1rem;
+				background: var(--accent);
+				color: white;
+				text-decoration: none;
+				border-radius: 8px;
+				font-weight: 600;
+				transition: all 0.3s ease;
+				box-shadow: 0 2px 8px rgba(74, 103, 65, 0.2);
+				font-size: 0.875rem;
+			}
+			.live-link:hover,
+			.repo-link:hover {
+				background: var(--accent-dark);
+				transform: translateY(-2px);
+				box-shadow: 0 4px 12px rgba(74, 103, 65, 0.3);
+				color: white;
+			}
+
+			/* Desktop: Sticky sidebar with two-column grid */
+			@media (min-width: 1024px) {
+				.page-container {
+					display: grid;
+					grid-template-columns: 280px 1fr;
+					gap: 2.5rem;
+					align-items: start;
+					max-width: var(--container-extra-wide);
+				}
+
+				.toc-wrapper {
+					position: sticky;
+					top: 80px;
+					max-height: calc(100vh - 100px);
+					overflow-y: auto;
+					margin-bottom: 0;
+					align-self: start;
+				}
+
+				.toc-nav {
+					background: rgba(255, 255, 255, 0.95);
+				}
+			}
+
+			/* Mobile: 320px - 767px */
+			@media (max-width: 767px) {
+				.meta {
+					gap: var(--space-sm);
+				}
+			}
+		</style>
+		<script>
+			// Build table of contents with collapse/expand and scroll spy
+			document.addEventListener('DOMContentLoaded', () => {
+				const prose = document.querySelector('.prose');
+				if (!prose) return;
+
+				// Find all h2 and h3 headings in the content
+				const headings = Array.from(prose.querySelectorAll('h2, h3')).filter(
+					(h) => !h.closest('.title-section')
+				);
+
+				if (headings.length === 0) return;
+
+				// Assign IDs to headings if they don't have them
+				headings.forEach((heading, index) => {
+					if (!heading.id) {
+						const text = heading.textContent?.trim() || '';
+						const id = text
+							.toLowerCase()
+							.replace(/[^a-z0-9]+/g, '-')
+							.replace(/^-|-$/g, '');
+						heading.id = id || `heading-${index}`;
+					}
+				});
+
+				// Build TOC HTML structure
+				const tocWrapper = document.createElement('div');
+				tocWrapper.className = 'toc-wrapper';
+				tocWrapper.innerHTML = `
+					<nav class="toc-nav" aria-label="Table of contents">
+						<h4>Table of Contents</h4>
+						<ul id="toc-list"></ul>
+					</nav>
+				`;
+
+				const tocList = tocWrapper.querySelector('#toc-list');
+				headings.forEach((heading) => {
+					const li = document.createElement('li');
+					const a = document.createElement('a');
+					const headingText = heading.textContent || '';
+					a.href = `#${heading.id}`;
+					a.textContent = headingText;
+					a.title = headingText; // Full text on hover for truncated items
+					a.className = heading.tagName === 'H3' ? 'toc-h3' : '';
+					li.appendChild(a);
+					tocList?.appendChild(li);
+				});
+
+				// Insert TOC based on screen size
+				const pageContainer = document.querySelector('.page-container');
+				const titleSection = document.querySelector('.title-section');
+				const isMobile = window.innerWidth < 1024;
+
+				if (isMobile && titleSection) {
+					// Mobile: Insert after title-section (between metadata and content)
+					titleSection.parentElement?.insertBefore(tocWrapper, titleSection.nextSibling);
+				} else if (pageContainer) {
+					// Desktop: Insert at beginning of page-container for grid layout
+					pageContainer.insertBefore(tocWrapper, pageContainer.firstChild);
+				}
+
+				// Scroll spy functionality
+				const tocNav = tocWrapper.querySelector('.toc-nav');
+				const observerOptions = {
+					rootMargin: '-100px 0px -66%',
+					threshold: 0
+				};
+
+				const observerCallback = (entries: IntersectionObserverEntry[]) => {
+					entries.forEach((entry) => {
+						const id = entry.target.getAttribute('id');
+						const link = tocNav?.querySelector(`a[href="#${id}"]`);
+						if (entry.isIntersecting) {
+							// Remove active from all links
+							tocNav?.querySelectorAll('a').forEach((a) => a.classList.remove('active'));
+							// Add active to current link
+							link?.classList.add('active');
+						}
+					});
+				};
+
+				const observer = new IntersectionObserver(observerCallback, observerOptions);
+				headings.forEach((heading) => observer.observe(heading));
+			});
+		</script>
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="hero-image">
+					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+				</div>
+				<div class="page-container">
+					<div class="prose">
+						<div class="title-section">
+							<h1>{title}</h1>
+							<p>{description}</p>
+							<div class="meta">
+								<div class="meta-item">
+									<span class="category">{categoryLabels[category]}</span>
+								</div>
+								<div class="meta-item">
+									Status: <span class={`status ${status}`}>{status.replace('-', ' ')}</span>
+								</div>
+								{version && (
+									<div class="meta-item">
+										Version: <strong>{version}</strong>
+									</div>
+								)}
+								<div class="meta-item">
+									Started: <FormattedDate date={startedDate} />
+								</div>
+								{launchedDate && (
+									<div class="meta-item">
+										Launched: <FormattedDate date={launchedDate} />
+									</div>
+								)}
+								{liveUrl && (
+									<div class="meta-item">
+										<a href={liveUrl} class="live-link" target="_blank">
+											🌐 Visit Site
+										</a>
+									</div>
+								)}
+								{repoUrl && (
+									<div class="meta-item">
+										<a href={repoUrl} class="repo-link" target="_blank">
+											View GitHub
+										</a>
+									</div>
+								)}
+							</div>
+							<div class="tech-stack">
+								<h3>Tech Stack</h3>
+								{techStack.map((tech) => (
+									<span class="tech-tag">{tech}</span>
+								))}
+							</div>
+						</div>
+						<slot />
+					</div>
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>

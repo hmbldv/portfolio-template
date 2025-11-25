@@ -1,0 +1,208 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+const projects = (await getCollection('projects')).sort(
+	(a, b) => {
+		const dateA = a.data.launchedDate || a.data.startedDate;
+		const dateB = b.data.launchedDate || b.data.startedDate;
+		return dateB.valueOf() - dateA.valueOf();
+	}
+);
+
+const categoryLabels = {
+	'aws-security': 'AWS Security',
+	'aws-infra': 'AWS Infrastructure',
+	'homelab': 'Homelab',
+	'ai-tools': 'AI & Automation',
+	'local-dev': 'Local Development',
+	'aws-ai': 'AWS AI/ML',
+	'frontend-development': 'Frontend Development'
+};
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Projects | ${SITE_TITLE}`} description="Cloud security and DevSecOps projects" />
+		<style>
+			main {
+				width: min(1200px, 95%);
+				margin: 0 auto;
+				padding: var(--space-lg) 0;
+			}
+			.intro {
+				margin-bottom: var(--space-lg);
+				max-width: 100%;
+			}
+			ul {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: var(--space-lg);
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			ul li {
+				border: 2px solid var(--border-color);
+				border-radius: 12px;
+				overflow: hidden;
+				background: var(--bg-primary);
+				transition: all 0.3s ease;
+			}
+
+			:global(.dark) ul li {
+				background: #0d1a0d;
+				border-color: #1a2e1a;
+			}
+
+			:global(.dark) ul li:hover {
+				border-color: var(--accent);
+			}
+			ul li:hover {
+				border-color: rgb(var(--accent));
+				transform: translateY(-4px);
+				box-shadow: 0 12px 24px rgba(var(--gray), 0.15);
+			}
+			ul li * {
+				text-decoration: none;
+			}
+			ul li img {
+				margin-bottom: 0;
+				border-radius: 0;
+				width: 100%;
+				transition: transform 0.3s ease;
+			}
+			ul li:hover img {
+				transform: scale(1.02);
+			}
+			ul li a {
+				display: block;
+			}
+			.card-content {
+				padding: 1.25rem;
+			}
+			.title {
+				margin: 0 0 0.5rem 0;
+				color: rgb(var(--black));
+				line-height: 1.2;
+				transition: color 0.2s ease;
+			}
+			.meta {
+				margin: 0.5rem 0;
+				color: rgb(var(--gray));
+				font-size: var(--font-size-sm);
+			}
+			.category {
+				display: inline-block;
+				background: rgba(74, 103, 65, 0.65);
+				color: white;
+				padding: 0.25rem 0.5rem;
+				border-radius: 4px;
+				font-size: 0.75rem;
+				margin-right: 0.5rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+			.status {
+				font-weight: 600;
+				text-transform: uppercase;
+				font-size: 0.8rem;
+			}
+			.status.launched {
+				color: green;
+			}
+			.status.in-development {
+				color: orange;
+			}
+			.description {
+				margin: 0.75rem 0;
+				color: rgb(var(--gray-dark));
+				font-size: 0.95rem;
+				line-height: 1.5;
+			}
+			.tech-stack {
+				margin: 0.75rem 0 0 0;
+				font-size: 0.85rem;
+				color: rgb(var(--gray));
+			}
+			.tech-tag {
+				display: inline-block;
+				background: var(--bg-secondary);
+				padding: 0.2rem 0.5rem;
+				border-radius: 3px;
+				margin-right: 0.25rem;
+				margin-bottom: 0.25rem;
+			}
+			ul li:hover .title {
+				color: rgb(var(--accent));
+			}
+			/* Mobile: 320px - 767px */
+			@media (max-width: 767px) {
+				ul {
+					grid-template-columns: 1fr;
+					gap: var(--space-md);
+				}
+			}
+
+			/* Tablet: 768px - 1023px */
+			@media (min-width: 768px) and (max-width: 1023px) {
+				ul {
+					grid-template-columns: repeat(2, 1fr);
+					gap: var(--space-md);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section>
+				<div class="intro">
+					<h1>Projects</h1>
+					<p>Most of my projects live at the intersection of cloud security, infrastructure automation, and DevSecOps; AWS org baselines, hardened architectures, and pipelines that make secure delivery the default. Mixed in, you’ll see the occasional website, homelab experiments, and AI-driven tooling where I use LLMs to reduce toil and sharpen workflows.
+					</p>
+					<p>
+					Some of these projects are polished reference architectures. Others are live experiments. All of them are part of the same goal: quietly raising the bar on how I design, secure, and ship systems. </p>
+				</div>
+				{projects.length === 0 ? (
+					<p>No projects yet. Check back soon!</p>
+				) : (
+					<ul>
+						{projects.map((project) => (
+							<li>
+								<a href={`/projects/${project.id}/`}>
+									{project.data.heroImage && (
+										<Image width={720} height={360} src={project.data.heroImage} alt="" />
+									)}
+									<div class="card-content">
+										<h3 class="title">{project.data.title}</h3>
+										<div class="meta">
+											<span class="category">{categoryLabels[project.data.category]}</span>
+											<span class={`status ${project.data.status}`}>
+												{project.data.status.replace('-', ' ')}
+											</span>
+											{project.data.version && <span> · v{project.data.version}</span>}
+										</div>
+										<p class="description">{project.data.description}</p>
+										<div class="tech-stack">
+											{project.data.techStack.map((tech) => (
+												<span class="tech-tag">{tech}</span>
+											))}
+										</div>
+									</div>
+								</a>
+							</li>
+						))}
+					</ul>
+				)}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
