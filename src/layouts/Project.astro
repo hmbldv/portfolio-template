@@ -327,6 +327,148 @@ const categoryLabels = {
 				headings.forEach((heading) => observer.observe(heading));
 			});
 		</script>
+		<script>
+			import mermaid from 'mermaid';
+
+			document.addEventListener('DOMContentLoaded', async () => {
+				console.log('Mermaid script starting...');
+
+				mermaid.initialize({
+					startOnLoad: false,
+					theme: 'neutral',
+					themeVariables: {
+						fontSize: '16px',
+						fontFamily: '"JetBrains Mono", monospace',
+					},
+					flowchart: {
+						padding: 25,
+						nodeSpacing: 80,
+						rankSpacing: 80,
+						curve: 'basis',
+					useMaxWidth: true,
+					htmlLabels: true,
+					diagramPadding: 30,
+					},
+				});
+
+				// Find all pre blocks and check their content for mermaid diagrams
+				const allPre = document.querySelectorAll('pre');
+				console.log('All pre blocks:', allPre.length);
+
+				const mermaidPres = [];
+				allPre.forEach((pre, i) => {
+					const code = pre.querySelector('code');
+					const text = pre.textContent || '';
+					console.log(`Pre ${i}:`, {
+						className: code?.className || 'none',
+						startsWithGraph: text.trim().startsWith('graph'),
+						startsWithFlowchart: text.trim().startsWith('flowchart'),
+						length: text.length
+					});
+
+					// Check if this looks like a mermaid diagram
+					if (text.includes('graph TB') || text.includes('graph TD') ||
+					    text.includes('flowchart') || text.includes('sequenceDiagram') ||
+					    text.includes('classDiagram') || text.includes('stateDiagram') ||
+					    text.includes('gantt') || text.includes('pie')) {
+						mermaidPres.push(pre);
+					}
+				});
+
+				console.log('Found mermaid diagrams:', mermaidPres.length);
+
+				for (const pre of mermaidPres) {
+					// Get the mermaid code
+					const code = pre.textContent || '';
+					console.log('Processing mermaid block with code length:', code.length);
+
+					// Create a new div for mermaid
+					const div = document.createElement('div');
+					div.className = 'mermaid';
+					div.textContent = code;
+					div.style.margin = '2rem 0';
+					div.style.display = 'flex';
+					div.style.justifyContent = 'center';
+
+					// Replace the pre block with the mermaid div
+					pre.replaceWith(div);
+				}
+
+				// Now render all mermaid diagrams
+				const mermaidDivs = document.querySelectorAll('.mermaid');
+				console.log('Mermaid divs to render:', mermaidDivs.length);
+
+				if (mermaidDivs.length > 0) {
+					try {
+						await mermaid.run({
+							querySelector: '.mermaid',
+						});
+						console.log('Mermaid rendering complete');
+
+						// Enable zoom on rendered diagrams
+						const svgs = document.querySelectorAll('.mermaid svg');
+						console.log('Found SVGs for zoom:', svgs.length);
+
+						if (svgs.length > 0) {
+							svgs.forEach(svg => {
+								svg.style.cursor = 'zoom-in';
+								svg.style.transition = 'opacity 0.2s';
+
+								svg.addEventListener('click', () => {
+									// Create overlay
+									const overlay = document.createElement('div');
+									overlay.style.cssText = `
+										position: fixed;
+										top: 0;
+										left: 0;
+										width: 100vw;
+										height: 100vh;
+										background: rgba(0, 0, 0, 0.9);
+										display: flex;
+										align-items: center;
+										justify-content: center;
+										z-index: 9999;
+										cursor: zoom-out;
+										padding: 48px;
+										box-sizing: border-box;
+									`;
+
+									// Clone and scale the SVG
+									const clone = svg.cloneNode(true);
+									clone.style.cssText = `
+										max-width: 90vw;
+										max-height: 90vh;
+										width: auto;
+										height: auto;
+										cursor: zoom-out;
+									`;
+
+									overlay.appendChild(clone);
+									document.body.appendChild(overlay);
+
+									// Close on click
+									overlay.addEventListener('click', () => {
+										overlay.remove();
+									});
+
+									// Close on ESC key
+									const closeOnEsc = (e) => {
+										if (e.key === 'Escape') {
+											overlay.remove();
+											document.removeEventListener('keydown', closeOnEsc);
+										}
+									};
+									document.addEventListener('keydown', closeOnEsc);
+								});
+							});
+							console.log('Custom zoom enabled on', svgs.length, 'diagrams');
+						}
+					} catch (error) {
+						console.error('Mermaid rendering error:', error);
+					}
+				}
+			});
+		</script>
 	</head>
 
 	<body>

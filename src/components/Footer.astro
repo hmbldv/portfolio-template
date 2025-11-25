@@ -3,8 +3,12 @@ const today = new Date();
 ---
 
 <footer>
-	&copy; {today.getFullYear()} Your Name. All rights reserved.
-	</div>
+	<p>
+		&copy; {today.getFullYear()} Your Name. All rights reserved.
+	</p>
+	<p class="template-link">
+		Like this site? <a href="https://github.com/hmbldv/portfolio-template" target="_blank" rel="noopener noreferrer">Download the template</a>
+	</p>
 </footer>
 <style>
 	footer {
@@ -13,6 +17,27 @@ const today = new Date();
 		color: rgb(var(--gray));
 		text-align: center;
 	}
+
+	footer p {
+		margin: 0.5em 0;
+	}
+
+	.template-link {
+		margin-top: 1em;
+		font-size: 0.95em;
+	}
+
+	.template-link a {
+		color: var(--accent);
+		text-decoration: none;
+		transition: color 0.3s;
+	}
+
+	.template-link a:hover {
+		color: var(--text-primary);
+		text-decoration: underline;
+	}
+
 	.social-links {
 		display: flex;
 		justify-content: center;
