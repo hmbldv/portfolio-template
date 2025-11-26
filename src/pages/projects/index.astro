@@ -6,13 +6,16 @@ import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
 import { SITE_TITLE } from '../../consts';
 
-const projects = (await getCollection('projects')).sort(
-	(a, b) => {
+const projects = (await getCollection('projects'))
+	.filter((project) => project.data.versionStatus !== 'previous') // Only show current versions
+	.sort((a, b) => {
 		const dateA = a.data.launchedDate || a.data.startedDate;
 		const dateB = b.data.launchedDate || b.data.startedDate;
 		return dateB.valueOf() - dateA.valueOf();
-	}
-);
+	});
+
+// Helper to get clean slug from project id
+const getSlug = (id: string) => id.endsWith('/index') ? id.replace(/\/index$/, '') : id;
 
 const categoryLabels = {
 	'aws-security': 'AWS Security',
@@ -53,6 +56,16 @@ const categoryLabels = {
 				overflow: hidden;
 				background: var(--bg-primary);
 				transition: all 0.3s ease;
+			}
+
+			/* Light mode card styling - darker background with good contrast */
+			:global(:root:not(.dark)) ul li {
+				background: #f0f4ef;
+				border-color: #d4dbd3;
+			}
+
+			:global(:root:not(.dark)) ul li:hover {
+				border-color: var(--accent);
 			}
 
 			:global(.dark) ul li {
@@ -139,6 +152,12 @@ const categoryLabels = {
 				margin-right: 0.25rem;
 				margin-bottom: 0.25rem;
 			}
+
+			/* Light mode tech tags - slightly darker for contrast on card */
+			:global(:root:not(.dark)) .tech-tag {
+				background: #e4e9e3;
+			}
+
 			ul li:hover .title {
 				color: rgb(var(--accent));
 			}
@@ -176,7 +195,7 @@ const categoryLabels = {
 					<ul>
 						{projects.map((project) => (
 							<li>
-								<a href={`/projects/${project.id}/`}>
+								<a href={`/projects/${getSlug(project.id)}/`}>
 									{project.data.heroImage && (
 										<Image width={720} height={360} src={project.data.heroImage} alt="" />
 									)}
@@ -187,7 +206,7 @@ const categoryLabels = {
 											<span class={`status ${project.data.status}`}>
 												{project.data.status.replace('-', ' ')}
 											</span>
-											{project.data.version && <span> · v{project.data.version}</span>}
+											{project.data.version && <span> · {project.data.version}</span>}
 										</div>
 										<p class="description">{project.data.description}</p>
 										<div class="tech-stack">

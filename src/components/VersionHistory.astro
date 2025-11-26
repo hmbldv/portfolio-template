@@ -1,0 +1,272 @@
+---
+interface VersionEntry {
+	version: string;
+	date: Date;
+	summary: string;
+	slug: string;
+}
+
+interface Props {
+	currentVersion?: string;
+	majorVersions?: VersionEntry[];
+	// For previous version pages
+	isPreviousVersion?: boolean;
+	currentVersionSlug?: string;
+}
+
+const { currentVersion, majorVersions, isPreviousVersion, currentVersionSlug } = Astro.props;
+
+// Only render if there are previous versions to show OR if this is a previous version page
+const hasPreviousVersions = majorVersions && majorVersions.length > 0;
+const shouldRender = hasPreviousVersions || isPreviousVersion;
+---
+
+{shouldRender && (
+	<details class={`version-history ${isPreviousVersion ? 'previous-version' : ''}`} open={isPreviousVersion}>
+		<summary>
+			<span class="summary-content">
+				<span class="icon">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<polyline points="12 6 12 12 16 14"></polyline>
+					</svg>
+				</span>
+				{isPreviousVersion ? (
+					<>
+						<span>Viewing Previous Version</span>
+						{currentVersion && <span class="previous-badge">{currentVersion}</span>}
+					</>
+				) : (
+					<>
+						<span>Version History</span>
+						{currentVersion && <span class="current-badge">{currentVersion}</span>}
+					</>
+				)}
+			</span>
+			<span class="chevron">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9"></polyline>
+				</svg>
+			</span>
+		</summary>
+		<div class="version-list">
+			{isPreviousVersion && currentVersionSlug ? (
+				<a href={`/projects/${currentVersionSlug}/`} class="current-version-link">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="5" y1="12" x2="19" y2="12"></line>
+						<polyline points="12 5 19 12 12 19"></polyline>
+					</svg>
+					View Current Version
+				</a>
+			) : (
+				<>
+					<p class="version-list-label">Previous Versions:</p>
+					<ul>
+						{majorVersions?.map((entry) => (
+							<li>
+								<a href={`/projects/${entry.slug}/`}>
+									<span class="version-badge">{entry.version}</span>
+									<span class="version-date">
+										{entry.date.toLocaleDateString('en-US', {
+											year: 'numeric',
+											month: 'short',
+											day: 'numeric'
+										})}
+									</span>
+									<span class="version-summary">{entry.summary}</span>
+								</a>
+							</li>
+						))}
+					</ul>
+				</>
+			)}
+		</div>
+	</details>
+)}
+
+<style>
+	.version-history {
+		margin: 1rem 0;
+		border: 1px solid var(--border-color);
+		border-radius: 8px;
+		background: var(--bg-primary);
+		overflow: hidden;
+	}
+
+	summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1rem;
+		cursor: pointer;
+		user-select: none;
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: rgb(var(--gray-dark));
+		transition: background 0.2s ease;
+	}
+
+	summary:hover {
+		background: var(--bg-secondary);
+	}
+
+	summary::-webkit-details-marker {
+		display: none;
+	}
+
+	summary::marker {
+		display: none;
+		content: '';
+	}
+
+	.summary-content {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.icon {
+		display: flex;
+		align-items: center;
+		color: rgb(var(--gray));
+	}
+
+	.current-badge {
+		background: var(--accent);
+		color: white;
+		padding: 0.125rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.previous-badge {
+		background: #d97706;
+		color: white;
+		padding: 0.125rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	/* Previous version styling */
+	.version-history.previous-version {
+		border-color: #e5a94d;
+		border-left: 3px solid #d97706;
+	}
+
+	.version-history.previous-version summary {
+		background: rgba(217, 119, 6, 0.05);
+	}
+
+	.version-history.previous-version summary:hover {
+		background: rgba(217, 119, 6, 0.1);
+	}
+
+	.current-version-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 1rem;
+		background: var(--accent);
+		color: white;
+		text-decoration: none;
+		border-radius: 6px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		transition: all 0.2s ease;
+	}
+
+	.current-version-link:hover {
+		background: var(--accent-dark);
+		color: white;
+	}
+
+	.current-version-link svg {
+		transition: transform 0.2s ease;
+	}
+
+	.current-version-link:hover svg {
+		transform: translateX(3px);
+	}
+
+	.chevron {
+		display: flex;
+		align-items: center;
+		color: rgb(var(--gray));
+		transition: transform 0.2s ease;
+	}
+
+	details[open] .chevron {
+		transform: rotate(180deg);
+	}
+
+	.version-list {
+		padding: 0.75rem 1rem 1rem;
+		border-top: 1px solid var(--border-color);
+		background: var(--bg-secondary);
+	}
+
+	.version-list-label {
+		margin: 0 0 0.5rem 0;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: rgb(var(--gray));
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	li a {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 6px;
+		text-decoration: none;
+		color: rgb(var(--gray-dark));
+		transition: background 0.2s ease;
+	}
+
+	li a:hover {
+		background: var(--bg-primary);
+	}
+
+	.version-badge {
+		background: rgba(74, 103, 65, 0.15);
+		color: var(--accent);
+		padding: 0.125rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		font-family: var(--font-mono);
+	}
+
+	.version-date {
+		font-size: 0.8rem;
+		color: rgb(var(--gray));
+	}
+
+	.version-summary {
+		flex: 1 1 100%;
+		font-size: 0.85rem;
+		color: rgb(var(--gray-dark));
+		margin-top: 0.25rem;
+	}
+
+	@media (min-width: 640px) {
+		.version-summary {
+			flex: 1 1 auto;
+			margin-top: 0;
+		}
+	}
+</style>

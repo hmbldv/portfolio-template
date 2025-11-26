@@ -16,6 +16,14 @@ A fast, minimal portfolio site template built with Astro featuring dark mode, cu
 - **Type-safe content** - Astro Content Collections with TypeScript validation
 - **Zero-config deployment** - Vercel/Netlify auto-deploy from GitHub
 
+### New in v2.0
+
+- **Project versioning system** - Archive previous versions of project writeups with version history dropdown
+- **Commit history changelog** - Display git commits with GitHub links on project pages
+- **Documentation-style layout** - Two-column layout with sticky TOC sidebar
+- **Mermaid diagram support** - Render flowcharts and diagrams in Markdown
+- **Breadcrumb navigation** - Contextual navigation on project and blog pages
+
 ## Tech Stack
 
 - **[Astro](https://astro.build)** 5.16.0 - Static site generator with zero JS by default
@@ -108,12 +116,29 @@ description: "One-line description"
 category: "web-development"
 tags: ["tag1", "tag2"]
 status: "launched"  # in-development, launched, archived
-version: "v1.0"
+version: "v2.0"
+versionStatus: "current"  # current or previous
 startedDate: 2025-01-15
 launchedDate: 2025-01-20
 techStack: ["Tech1", "Tech2"]
 repoUrl: "https://github.com/..."
 liveUrl: "https://..."
+
+# Optional: Version history (for projects with archived versions)
+majorVersions:
+  - version: "v1.0"
+    date: 2025-01-15
+    summary: "Initial release with core features"
+    slug: "project-name/v1-0"
+
+# Optional: Commit history changelog
+changelog:
+  - commit: "abc1234"
+    date: 2025-01-20
+    message: "feat: add new feature"
+    body: "Optional longer description"
+    url: "https://github.com/user/repo/commit/abc1234..."
+    repo: "user/repo"
 ---
 ```
 
@@ -210,6 +235,33 @@ The site uses **JetBrains Mono** monospace font. Update in `src/styles/global.cs
 - Responsive grid layout
 - "In Progress" badge support
 
+### Project Versioning (v2.0)
+- Archive previous versions as `v1-0.md` files in project folders
+- Version history dropdown on project pages
+- "Viewing Previous Version" notice with link to current
+- Supports semantic versioning display
+
+### Commit History (v2.0)
+- Display git commits as changelog entries
+- Links to GitHub commits
+- Shows commit hash, date, message, and optional body
+- Repo name badge for multi-repo projects
+
+### Mermaid Diagrams (v2.0)
+- Render flowcharts, sequence diagrams, etc.
+- Just use standard Mermaid code blocks in Markdown
+- Client-side rendering with lazy loading
+
+## New Components (v2.0)
+
+| Component | Purpose |
+|:----------|:--------|
+| `Breadcrumbs.astro` | Navigation context (Home > Projects > Name) |
+| `Changelog.astro` | Commit history display |
+| `Mermaid.astro` | Diagram rendering |
+| `VersionHistory.astro` | Version dropdown with history |
+| `PreviousVersionBanner.astro` | Archived version notice |
+
 ## License
 
 MIT License - Feel free to use this template for your own portfolio.
@@ -222,3 +274,5 @@ MIT License - Feel free to use this template for your own portfolio.
 ---
 
 **Built with** [Astro](https://astro.build)
+
+*Last synced: 2025-11-26*

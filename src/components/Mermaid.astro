@@ -1,0 +1,51 @@
+---
+interface Props {
+	code: string;
+}
+
+const { code } = Astro.props;
+const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<div class="mermaid-wrapper">
+	<pre class="mermaid" id={id}>{code}</pre>
+</div>
+
+<script>
+	import mermaid from 'mermaid';
+
+	mermaid.initialize({
+		startOnLoad: true,
+		theme: 'default',
+		themeVariables: {
+			fontSize: '16px',
+			fontFamily: 'arial, sans-serif',
+		},
+		flowchart: {
+			padding: 20,
+			nodeSpacing: 50,
+			rankSpacing: 50,
+			curve: 'basis',
+		},
+	});
+
+	// Render all mermaid diagrams
+	document.addEventListener('DOMContentLoaded', () => {
+		mermaid.run({
+			querySelector: '.mermaid',
+		});
+	});
+</script>
+
+<style>
+	.mermaid-wrapper {
+		margin: 2rem 0;
+		overflow-x: auto;
+	}
+
+	.mermaid {
+		display: flex;
+		justify-content: center;
+		background: transparent;
+	}
+</style>

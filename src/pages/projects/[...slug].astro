@@ -4,17 +4,24 @@ import Project from '../../layouts/Project.astro';
 
 export async function getStaticPaths() {
 	const projects = await getCollection('projects');
-	return projects.map((project) => ({
-		params: { slug: project.id },
-		props: project,
-	}));
+	return projects.map((project) => {
+		// Handle nested folders: portfolio-website/index -> portfolio-website
+		// Version files remain as-is: portfolio-website/v1-0 -> portfolio-website/v1-0
+		const slug = project.id.endsWith('/index')
+			? project.id.replace(/\/index$/, '')
+			: project.id;
+		return {
+			params: { slug },
+			props: { project, slug },
+		};
+	});
 }
-type Props = CollectionEntry<'projects'>;
+type Props = { project: CollectionEntry<'projects'>; slug: string };
 
-const project = Astro.props;
+const { project, slug } = Astro.props;
 const { Content } = await render(project);
 ---
 
-<Project {...project.data}>
+<Project {...project.data} slug={slug}>
 	<Content />
 </Project>

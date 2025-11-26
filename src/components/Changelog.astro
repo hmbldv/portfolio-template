@@ -1,0 +1,183 @@
+---
+interface ChangelogEntry {
+	commit: string;
+	date: Date;
+	message: string;
+	body?: string;
+	url: string;
+	repo: string;
+}
+
+interface Props {
+	entries?: ChangelogEntry[];
+}
+
+const { entries } = Astro.props;
+
+// Only render if there are changelog entries
+const hasEntries = entries && entries.length > 0;
+---
+
+{hasEntries && (
+	<section class="changelog">
+		<h2>Commit History</h2>
+		<div class="changelog-list">
+			{entries.map((entry, index) => (
+				<div class={`changelog-entry ${index === 0 ? 'latest' : ''}`}>
+					<div class="entry-header">
+						<a href={entry.url} target="_blank" rel="noopener noreferrer" class="commit-link">
+							<span class="commit-badge">{entry.commit}</span>
+						</a>
+						<span class="repo-name">{entry.repo}</span>
+						<span class="entry-date">
+							{entry.date.toLocaleDateString('en-US', {
+								year: 'numeric',
+								month: 'short',
+								day: 'numeric'
+							})}
+						</span>
+					</div>
+					<p class="entry-message">{entry.message}</p>
+					{entry.body && (
+						<div class="entry-body">
+							<p>{entry.body}</p>
+						</div>
+					)}
+				</div>
+			))}
+		</div>
+	</section>
+)}
+
+<style>
+	.changelog {
+		margin-top: 3rem;
+		padding-top: 2rem;
+		border-top: 2px solid var(--border-color);
+	}
+
+	.changelog h2 {
+		margin: 0 0 1.5rem 0;
+		font-size: 1.5rem;
+		color: rgb(var(--black));
+	}
+
+	.changelog-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.changelog-entry {
+		padding: 1rem 1.25rem;
+		border-radius: 8px;
+		background: var(--bg-secondary);
+		border-left: 3px solid var(--border-color);
+		transition: border-color 0.2s ease;
+	}
+
+	.changelog-entry.latest {
+		border-left-color: var(--accent);
+		background: rgba(74, 103, 65, 0.05);
+	}
+
+	.entry-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 0.75rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.commit-link {
+		text-decoration: none;
+	}
+
+	.commit-badge {
+		display: inline-block;
+		background: var(--accent);
+		color: white;
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		font-family: var(--font-mono);
+		transition: background 0.2s ease;
+	}
+
+	.commit-link:hover .commit-badge {
+		background: var(--accent-dark);
+	}
+
+	.changelog-entry:not(.latest) .commit-badge {
+		background: rgba(74, 103, 65, 0.2);
+		color: var(--accent-dark);
+	}
+
+	.changelog-entry:not(.latest) .commit-link:hover .commit-badge {
+		background: rgba(74, 103, 65, 0.35);
+	}
+
+	.repo-name {
+		font-size: 0.75rem;
+		color: rgb(var(--gray));
+		font-family: var(--font-mono);
+		background: var(--bg-primary);
+		border: 1px solid var(--border-color);
+		padding: 0.125rem 0.375rem;
+		border-radius: 3px;
+	}
+
+	.entry-date {
+		font-size: 0.8rem;
+		color: rgb(var(--gray));
+	}
+
+	.entry-message {
+		margin: 0;
+		font-size: 0.95rem;
+		color: rgb(var(--gray-dark));
+		line-height: 1.5;
+		font-weight: 500;
+	}
+
+	.entry-body {
+		margin-top: 0.5rem;
+		padding-top: 0.5rem;
+		border-top: 1px dashed var(--border-color);
+	}
+
+	.entry-body p {
+		margin: 0;
+		font-size: 0.875rem;
+		color: rgb(var(--gray));
+		line-height: 1.6;
+		white-space: pre-wrap;
+	}
+
+	/* Dark mode adjustments */
+	:global(.dark) .changelog-entry.latest {
+		background: rgba(74, 103, 65, 0.1);
+	}
+
+	:global(.dark) .changelog-entry:not(.latest) .commit-badge {
+		background: rgba(74, 103, 65, 0.3);
+		color: var(--accent);
+	}
+
+	:global(.dark) .repo-name {
+		background: var(--bg-secondary);
+	}
+
+	/* Mobile adjustments */
+	@media (max-width: 767px) {
+		.entry-header {
+			gap: 0.375rem 0.5rem;
+		}
+
+		.repo-name {
+			order: 3;
+			flex-basis: 100%;
+		}
+	}
+</style>

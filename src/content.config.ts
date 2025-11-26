@@ -27,6 +27,26 @@ const projects = defineCollection({
 			tags: z.array(z.string()),
 			status: z.enum(['in-development', 'launched', 'archived']).default('launched'),
 			version: z.string().optional(),
+			// Versioning fields
+			versionStatus: z.enum(['current', 'previous']).default('current'),
+			currentVersion: z.string().optional(), // For previous versions: slug to current version
+			previousDate: z.coerce.date().optional(), // When this became a previous version
+			// Major versions for Version History dropdown
+			majorVersions: z.array(z.object({
+				version: z.string(),
+				date: z.coerce.date(),
+				summary: z.string(),
+				slug: z.string(),
+			})).optional(),
+			// Changelog - commit-based entries linked to GitHub
+			changelog: z.array(z.object({
+				commit: z.string(), // Short commit hash (e.g., "9eb4766")
+				date: z.coerce.date(),
+				message: z.string(), // Commit subject line
+				body: z.string().optional(), // Commit body (longer description)
+				url: z.string().url(), // GitHub commit URL
+				repo: z.string(), // Repo name (e.g., "hmbldv/aws-sec")
+			})).optional(),
 			startedDate: z.coerce.date(),
 			launchedDate: z.coerce.date().optional(),
 			updatedDate: z.coerce.date().optional(),
